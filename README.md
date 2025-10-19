@@ -11,6 +11,9 @@ It analyzes written policies (like SOC 2 or ISO 27001 documents) and returns a s
 
 This project is built to showcase how **AI workflows, APIs, and automation** can be used to bridge engineering and business needs — perfect for security and pre-sales engineering demonstrations.
 
+### Demo 
+![AI Compliance Assistant Demo](./Demo_Pic.png)
+
 ---
 
 ### ✨ Features
