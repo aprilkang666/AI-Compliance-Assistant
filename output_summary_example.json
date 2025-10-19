@@ -1,0 +1,5 @@
+{
+  "Key Controls": "Access Control, Multi-Factor Authentication (MFA), Encryption at Rest",
+  "Missing Controls": "Offboarding Review, Logging and Monitoring",
+  "Recommendations": "Add quarterly access audits and centralized logging for compliance visibility."
+}
