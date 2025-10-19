@@ -1,0 +1,183 @@
+{
+  "name": "AI Compliance Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-compliance-assistant",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d36e8555-665c-4794-9415-8927098686fd",
+      "name": "Webhook",
+      "webhookId": "fe2cc0d6-6df0-42b9-a024-b989ee6838ab"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-3.5-turbo\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a cybersecurity compliance assistant. Review the following text for SOC 2 and ISO 27001 control coverage and recommend improvements.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{$json.policy_text}}\"\n    }\n  ],\n  \"temperature\": 0.2\n}\n",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "2f9db3d3-9603-4b57-b19b-df822a706694",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "5yPvchN25AtBVNqY",
+          "name": "Bearer Auth account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"Key Controls\": \"Access Control, MFA\",\n  \"Missing Controls\": \"Offboarding reviews\",\n  \"Recommendations\": \"Add periodic access review checklist\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "26e87829-ff89-4bf1-8db1-ecdb946ab338",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract AI response from HTTP Request output\nconst aiResponse = $json[\"choices\"][0][\"message\"][\"content\"];\n\n// Optional: clean up line breaks and extra spaces\nconst cleanedResponse = aiResponse\n  .replace(/\\n/g, \" \")\n  .replace(/\\s+/g, \" \")\n  .trim();\n\n// Return the cleaned text\nreturn [{ aiText: cleanedResponse }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "0845a5a2-f1ba-4e37-b304-7c76771cf237",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "c68073d7-8ee3-4b54-9fc9-598852ff0a76",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"Key Controls: Access Control, Multi-Factor Authentication (MFA), Encryption at Rest.\\nMissing Controls: Offboarding Review, Logging and Monitoring.\\nRecommendations: Add quarterly access audits, improve visibility into privileged user actions, and enforce centralized logging for compliance reporting.\"\n      }\n    }\n  ]\n}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6887cb82-0ef0-44ed-a780-d3da6ffe582b",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2fad04f0-cdec-49a1-9f29-ab1d6dc80df9",
+  "meta": {
+    "instanceId": "d318db8aa13b03c7c8157efab1a3bdd374ec97b899563e27f3eaef9fc0f88e52"
+  },
+  "id": "mdMaEpIDzf5maQXY",
+  "tags": []
+}
