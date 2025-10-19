@@ -1,0 +1,3 @@
+{
+  "policy_text": "Access to production systems shall be restricted to authorized personnel only. All privileged accounts must enforce multi-factor authentication (MFA). Access logs must be reviewed quarterly to ensure compliance."
+}
